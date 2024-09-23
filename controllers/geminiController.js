@@ -1,5 +1,5 @@
 const { GoogleGenerativeAI } = require("@google/generative-ai");
-const genAI = new GoogleGenerativeAI("AIzaSyB92aZi-skUc-ngAxOH2jdeI40ZBkoy2s8");
+const genAI = new GoogleGenerativeAI(process.env.GOOGLE_API_KEY);
 
 async function geminiChat(prompt) {
     let model = genAI.getGenerativeModel({

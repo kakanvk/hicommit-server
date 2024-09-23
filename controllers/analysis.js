@@ -7,40 +7,11 @@ const Post = require('../models/post');
 const { fn, col, where, literal, Op } = require('sequelize');
 const sequelize = require('../configs/database');
 
-// Thống kê số người dùng, số bài tập trên hệ thống, số lượt nộp bài, số bài viết (30 day, 7 day, 1 day)
-// {
-//     1_day: {
-//         users_count: 100,
-//         problems_count: 100,
-//         submissions_count: 100,
-//         posts_count: 100
-//     },
-//     7_day: {
-//         users_count: 100,
-//         problems_count: 100,
-//         submissions_count: 100,
-//         posts_count: 100
-//     },
-//     30_day: {
-//         users_count: 100,
-//         problems_count: 100,
-//         submissions_count: 100,
-//         posts_count: 100
-//     }
-//     all_time: {
-//         users_count: 100,
-//         problems_count: 100,
-//         submissions_count: 100,
-//         posts_count: 100
-//     }
-//     submissions: {
-//         total: 100,
-//         PASSED: 100,
-//         FAILED: 100,
-//         ERROR: 100,
-//         COMPILE_ERROR: 100,
-//     }
-// }
+// User(id, username, uid, email, role, status, avatar_url, favourite_post, favourite_course, favourite_problem, join_at)
+// Problem(id, name, slug, tags, language, description, input, output, limit, examples, testcases, created_by, type, level, score, parent)
+// Submission(id, user_id, problem_id, code, status, score, pass_count, total_count, created_at)
+// Contest(id, name, slug, description, start_time, end_time, created_by, type, status, problems, posts, users)
+// Post(id, title, slug, content, created_by, type, status, parent, comments, likes, tags)
 
 const getAnalysis = async (req, res) => {
     try {
@@ -100,7 +71,7 @@ const getAnalysis = async (req, res) => {
                 }
             }
         });
-        
+
         const submissions_count_7_day = await Submission.count({
             where: {
                 createdAt: {
@@ -108,7 +79,7 @@ const getAnalysis = async (req, res) => {
                 }
             }
         });
-        
+
         const posts_count_7_day = await Post.count({
             where: {
                 createdAt: {
@@ -140,7 +111,7 @@ const getAnalysis = async (req, res) => {
                 }
             }
         });
-        
+
         const submissions_count_30_day = await Submission.count({
             where: {
                 createdAt: {
@@ -148,7 +119,7 @@ const getAnalysis = async (req, res) => {
                 }
             }
         });
-        
+
         const posts_count_30_day = await Post.count({
             where: {
                 createdAt: {
@@ -183,6 +154,45 @@ const getAnalysis = async (req, res) => {
     }
 };
 
+const getRanking = async (req, res) => {
+    // Dựa vào Problem, Submission, User để lấy ra ranking
+    try {
+        const ranking = await User.findAll({
+            attributes: [
+                'id',
+                'username',
+                'avatar_url',
+                'role',
+                [
+                    sequelize.literal(`(
+                        SELECT COALESCE(SUM(p.score), 0)
+                        FROM Submissions s
+                        JOIN Problems p ON s.problem_slug = p.slug
+                        WHERE s.username = User.username AND s.status = 'PASSED'
+                        AND p.parent IS NULL
+                    )`),
+                    'score'
+                ],
+                [
+                    sequelize.literal(`(
+                        SELECT GROUP_CONCAT(DISTINCT p.slug)
+                        FROM Submissions s
+                        JOIN Problems p ON s.problem_slug = p.slug
+                        WHERE s.username = User.username AND s.status = 'PASSED'
+                        AND p.parent IS NULL
+                    )`),
+                    'completed_problems'
+                ]
+            ],
+            order: [[sequelize.literal('score'), 'DESC']]
+        });
+        res.status(200).json(ranking);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+};
+
 module.exports = {
-    getAnalysis
+    getAnalysis,
+    getRanking
 };
