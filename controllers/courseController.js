@@ -78,6 +78,44 @@ const getCourses = async (req, res) => {
     }
 }
 
+const getCoursesForAdmin = async (req, res) => {
+    try {
+        const courses = await Course.findAll({
+            order: [['created_at', 'DESC']]
+        });
+
+        // Đếm số bài tập trong từng khoá học
+        for (let i = 0; i < courses.length; i++) {
+            const course = courses[i];
+            const unitIds = course.units || [];
+            const units = await Unit.findAll({
+                where: {
+                    id: unitIds
+                },
+                attributes: ['id', 'children']
+            });
+
+            let problemIds = [];
+            units.forEach(unit => {
+                problemIds = problemIds.concat(unit.children);
+            });
+
+            const problems = await Problem.findAll({
+                where: {
+                    id: problemIds
+                },
+                attributes: ['id']
+            });
+
+            course.dataValues.problem_count = problems.length;
+        }
+
+        res.status(200).json(courses);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+}
+
 const getMyCourses = async (req, res) => {
     try {
         const courses = await Course.findAll({
@@ -542,5 +580,7 @@ module.exports = {
     togglePublicCourse,
     toggleAutoJoin,
     updateCourse,
-    deleteCourse
+    deleteCourse,
+    // ADMIN
+    getCoursesForAdmin
 };

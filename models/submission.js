@@ -40,6 +40,11 @@ const Submission = sequelize.define('Submission', {
         type: DataTypes.TEXT('long'),
         allowNull: false
     },
+    public: {
+        type: DataTypes.BOOLEAN,
+        allowNull: false,
+        defaultValue: false
+    },
     status: {
         // ['PENDING', 'PASSED', 'FAILED', 'ERROR', 'COMPILE_ERROR']
         type: DataTypes.ENUM('PENDING', 'PASSED', 'FAILED', 'ERROR', 'COMPILE_ERROR'),
@@ -62,12 +67,12 @@ const Submission = sequelize.define('Submission', {
             }
         }
     },
-    style_check: {
+    review: {
         type: DataTypes.JSON,
         allowNull: true,
         defaultValue: [],
         get() {
-            const rawValue = this.getDataValue('style_check');
+            const rawValue = this.getDataValue('review');
             if (rawValue === null) {
                 return [];
             } else {

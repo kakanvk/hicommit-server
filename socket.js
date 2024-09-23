@@ -3,9 +3,21 @@ const { Server } = require('socket.io');
 let io;
 
 function initializeSocket(server) {
+
+  const allowedDomains = [
+    'http://192.168.0.103:5173',
+    'http://localhost:5173',
+  ];
+
   io = new Server(server, {
     cors: {
-      origin: "http://localhost:5173",
+      origin: function (origin, callback) {
+        if (allowedDomains.indexOf(origin) !== -1 || !origin) {
+          callback(null, true);
+        } else {
+          callback(new Error('Not allowed by CORS'));
+        }
+      },
       methods: ["GET", "POST"]
     }
   });

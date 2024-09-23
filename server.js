@@ -18,7 +18,10 @@ const postRoutes = require('./routes/postRoutes');
 const courseRoutes = require('./routes/courseRoutes');
 const problemRoutes = require('./routes/problemRoutes');
 const submissionRoutes = require('./routes/submissionRoutes');
+const contestRoutes = require('./routes/contestRoutes');
+const discussionRoutes = require('./routes/discussionRoutes');
 const adminRoutes = require('./routes/adminRoutes');
+const geminiRoutes = require('./routes/geminiRoutes');
 
 // Tăng giới hạn kích thước payload cho JSON
 app.use(bodyParser.json({ limit: '20mb' }));
@@ -28,8 +31,20 @@ app.use(bodyParser.urlencoded({ limit: '20mb', extended: true }));
 
 app.use(cookieParser());
 
+// Danh sách các domain được phép
+const allowedDomains = [
+  'http://192.168.0.103:5173',
+  'http://localhost:5173',
+];
+
 app.use(cors({
-  origin: 'http://localhost:5173',
+  origin: function (origin, callback) {
+    if (allowedDomains.indexOf(origin) !== -1 || !origin) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
   credentials: true,
 }));
 
@@ -42,7 +57,10 @@ app.use('/users', userRoutes);
 app.use('/posts', postRoutes);
 app.use('/courses', courseRoutes);
 app.use('/problems', problemRoutes);
+app.use('/discussions', discussionRoutes);
 app.use('/submissions', submissionRoutes);
+app.use('/contests', contestRoutes);
+app.use('/gemini', geminiRoutes);
 
 const port = 5174;
 sequelize.sync({ alter: false })

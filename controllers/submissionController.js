@@ -4,10 +4,12 @@ const Problem = require('../models/problem');
 const User = require('../models/user');
 const Course = require('../models/course');
 const Unit = require('../models/unit');
+const Contest = require('../models/contest');
 const io = require('../server');
 
 // Submission(id, problem_slug, user_id, sha, commit, run_id, code, status, duration, result, style_check, pass_count, total_count)
 // Testcase(id, input, output, sugestion)
+// Contest(id, created_by, name, description, start_time, end_time, duration, problems, publish, public, join_key, slug, pinned)
 
 const getMySubmissions = async (req, res) => {
     try {
@@ -56,6 +58,7 @@ const getMySubmissionsByProblem = async (req, res) => {
         res.status(500).json({ error: error.message });
     }
 }
+
 
 const getSubmissionById = async (req, res) => {
     try {
@@ -167,10 +170,22 @@ const getMySubmissionsResult = async (req, res) => {
     }
 };
 
+const togglePublicCode = async (req, res) => {
+    try {
+        const submission = await Submission.findByPk(req.params.id);
+        submission.public = !submission.public;
+        await submission.save();
+        res.status(200).json(submission);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+}
+
 module.exports = {
     getMySubmissions,
     getSubmissionsByProblem,
     getMySubmissionsByProblem,
     getSubmissionById,
-    getMySubmissionsResult
+    getMySubmissionsResult,
+    togglePublicCode
 };

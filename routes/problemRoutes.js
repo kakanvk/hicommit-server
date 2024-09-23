@@ -5,6 +5,7 @@ const authMiddleware = require('../middleware/authMiddleware');
 const {
     createProblem,
     getProblems,
+    getAllTags,
     getProblemByIDorSlug,
     getProblemByIDForAdmin,
     getTestcasesBySlug,
@@ -14,6 +15,7 @@ const {
 } = require('../controllers/problemController');
 
 router.get('/list', authMiddleware.authenticate, getProblems);
+router.get('/tags', getAllTags);
 router.get('/admin/:id', authMiddleware.authenticate, authMiddleware.isAdminOrTeacher, getProblemByIDForAdmin);
 router.get('/:id', authMiddleware.authenticate, getProblemByIDorSlug);
 router.get('/:slug/testcases', getTestcasesBySlug);
