@@ -10,6 +10,9 @@ const {
     joinCourse,
     getJoinedCourses,
     getCourseByIDForAdmin,
+    addMemberToCourse,
+    addMultipleMembersToCourse,
+    deleteMemberFromCourse,
     updateUnits,
     updateKey,
     togglePublishCourse,
@@ -27,7 +30,8 @@ router.get('/admin/:id', authMiddleware.authenticate, authMiddleware.isAdminOrTe
 router.get('/:id', authMiddleware.authenticate, getCourseByIdOrSlug);
 router.post('/create', authMiddleware.authenticate, authMiddleware.isAdminOrTeacher, createCourse);
 router.post('/join/:id', authMiddleware.authenticate, joinCourse);
-
+router.post('/:id/add-member', authMiddleware.authenticate, authMiddleware.isAdminOrTeacher, addMemberToCourse);
+router.post('/:id/add-multiple-members', authMiddleware.authenticate, authMiddleware.isAdminOrTeacher, addMultipleMembersToCourse);
 router.put('/:id/units', authMiddleware.authenticate, courseMiddleware.isAuthor, updateUnits);
 router.put('/:id/key', authMiddleware.authenticate, courseMiddleware.isAuthor, updateKey);
 router.put('/:id/publish', authMiddleware.authenticate, courseMiddleware.isAuthor, togglePublishCourse);
@@ -40,6 +44,6 @@ router.post('/:course_id/units/create', authMiddleware.authenticate, authMiddlew
 router.put('/:course_id/units/:unit_id', authMiddleware.authenticate, authMiddleware.isAdminOrTeacher, updateUnitById);
 
 router.delete('/:course_id/units/:unit_id', authMiddleware.authenticate, authMiddleware.isAdminOrTeacher, deleteUnitById);
+router.delete('/:id/delete-member', authMiddleware.authenticate, authMiddleware.isAdminOrTeacher, deleteMemberFromCourse);
 router.delete('/:id', authMiddleware.authenticate, courseMiddleware.isAuthor, deleteCourse);
-
 module.exports = router;

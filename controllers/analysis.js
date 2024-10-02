@@ -165,11 +165,20 @@ const getRanking = async (req, res) => {
                 'role',
                 [
                     sequelize.literal(`(
-                        SELECT COALESCE(SUM(p.score), 0)
-                        FROM Submissions s
-                        JOIN Problems p ON s.problem_slug = p.slug
-                        WHERE s.username = User.username AND s.status = 'PASSED'
-                        AND p.parent IS NULL
+                        SELECT COALESCE(SUM(
+                            CASE 
+                                WHEN EXISTS (
+                                    SELECT 1 
+                                    FROM Submissions s2 
+                                    WHERE s2.problem_slug = p.slug 
+                                    AND s2.username = User.username 
+                                    AND s2.status = 'PASSED'
+                                ) THEN p.score 
+                                ELSE 0 
+                            END
+                        ), 0)
+                        FROM Problems p
+                        WHERE p.type = 'FREE'
                     )`),
                     'score'
                 ],
@@ -178,10 +187,26 @@ const getRanking = async (req, res) => {
                         SELECT GROUP_CONCAT(DISTINCT p.slug)
                         FROM Submissions s
                         JOIN Problems p ON s.problem_slug = p.slug
-                        WHERE s.username = User.username AND s.status = 'PASSED'
-                        AND p.parent IS NULL
+                        WHERE s.username = User.username 
+                        AND s.status = 'PASSED'
+                        AND p.type = 'FREE'
                     )`),
                     'completed_problems'
+                ],
+                // Tỉ lệ phần trăm lượt PASSED / Tổng số lượt nộp bài của user
+                [
+                    sequelize.literal(`CAST((
+                        SELECT COALESCE(
+                            (SUM(CASE WHEN s.status = 'PASSED' THEN 1 ELSE 0 END) * 100.0) / 
+                            NULLIF(COUNT(*), 0),
+                            0
+                        )
+                        FROM Submissions s
+                        JOIN Problems p ON s.problem_slug = p.slug
+                        WHERE s.username = User.username 
+                        AND p.type = 'FREE'
+                    ) AS DECIMAL(10, 2))`),
+                    'ac_rate'
                 ]
             ],
             order: [[sequelize.literal('score'), 'DESC']]

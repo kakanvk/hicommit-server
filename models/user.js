@@ -66,9 +66,13 @@ const User = sequelize.define('User', {
     join_at: {
         type: DataTypes.BIGINT,
         defaultValue: () => Math.floor(Date.now() / 1000)
-    }
-
-    // User(id, username, uid, email, role, status, avatar_url, favourite_post, favourite_course, favourite_problem, join_at)
+    },
+}, {
+    indexes: [{ unique: true, fields: ['email'] }],
 });
 
 module.exports = User;
+
+
+
+
