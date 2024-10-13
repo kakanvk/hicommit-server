@@ -210,7 +210,7 @@ const getCourseByIdOrSlug = async (req, res) => {
                     where: {
                         id: problemIds,
                     },
-                    attributes: ['id', 'name', 'slug', 'language']
+                    attributes: ['id', 'name', 'slug', 'language', 'tags']
                 });
 
                 // Bỏ đi problems.creator
@@ -427,7 +427,7 @@ const getCourseByIDForAdmin = async (req, res) => {
                     where: {
                         id: problemIds,
                     },
-                    attributes: ['id', 'name', 'slug', 'language']
+                    attributes: ['id', 'name', 'slug', 'language', 'tags']
                 });
 
                 // Bỏ đi problems.creator

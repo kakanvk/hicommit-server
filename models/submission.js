@@ -1,5 +1,6 @@
 const { DataTypes } = require('sequelize');
 const sequelize = require('../configs/database');
+const User = require('./user');
 const { v4: uuidv4 } = require('uuid');
 const crypto = require('crypto');
 
@@ -89,5 +90,7 @@ const Submission = sequelize.define('Submission', {
         allowNull: true
     }
 });
+
+Submission.belongsTo(User, { foreignKey: 'username', targetKey: 'username' });
 
 module.exports = Submission;

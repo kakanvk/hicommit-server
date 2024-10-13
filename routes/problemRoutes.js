@@ -14,9 +14,14 @@ const {
     writeResultFromGitHub,
 } = require('../controllers/problemController');
 
+const {
+    countSubmissions60daysAgo
+} = require('../controllers/analysis');
+
 router.get('/list', authMiddleware.authenticate, getProblems);
 router.get('/tags', getAllTags);
 router.get('/admin/:id', authMiddleware.authenticate, authMiddleware.isAdminOrTeacher, getProblemByIDForAdmin);
+router.get('/:id/analysis/submissions', authMiddleware.authenticate,countSubmissions60daysAgo);
 router.get('/:id', authMiddleware.authenticate, getProblemByIDorSlug);
 router.get('/:slug/testcases', getTestcasesBySlug);
 

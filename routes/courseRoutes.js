@@ -23,10 +23,15 @@ const {
 } = require('../controllers/courseController');
 const { createUnit, getUnits, updateUnitById, deleteUnitById } = require('../controllers/unitController');
 
+const { getCourseAnalysis, analysisSubmissionOfCourse, getProblemAnalysisOfCourse } = require('../controllers/analysis');
+
 router.get('/list', getCourses);
 router.get('/created', authMiddleware.authenticate, getMyCourses);
 router.get('/joined', authMiddleware.authenticate, getJoinedCourses);
 router.get('/admin/:id', authMiddleware.authenticate, authMiddleware.isAdminOrTeacher, getCourseByIDForAdmin);
+router.get('/:id/analysis/submissions', authMiddleware.authenticate, analysisSubmissionOfCourse);
+router.get('/:id/analysis/problems', authMiddleware.authenticate, getProblemAnalysisOfCourse);
+router.get('/:id/analysis', authMiddleware.authenticate, getCourseAnalysis);
 router.get('/:id', authMiddleware.authenticate, getCourseByIdOrSlug);
 router.post('/create', authMiddleware.authenticate, authMiddleware.isAdminOrTeacher, createCourse);
 router.post('/join/:id', authMiddleware.authenticate, joinCourse);
